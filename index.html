@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Equipito: la app para organizar partidos de fútbol con equipos equilibrados automáticamente por ELO. Disponible para Android." />
+    <title>Equipito — Equipos equilibrados para tu partido</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@700&family=Manrope:wght@400;500;700;800&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* ═══════════════════════════════════════════════
+       TOKENS
+    ═══════════════════════════════════════════════ */
+        :root {
+            --bg: #10241C;
+            --fg: #F3EFD9;
+            --a: #23d160;
+            --b: #FF7062;
+            --surface: rgba(243, 239, 217, .045);
+            --border: rgba(243, 239, 217, .09);
+            --f-num: 'Teko', sans-serif;
+            --f-body: 'Manrope', sans-serif;
+            --r: 3px;
+            --ease-out: cubic-bezier(.23, 1, .32, 1);
+        }
+
+        [data-theme="light"] {
+            --bg: #F3EFD9;
+            --fg: #10241C;
+            --surface: rgba(16, 36, 28, .045);
+            --border: rgba(16, 36, 28, .1);
+        }
+
+        /* ═══════════════════════════════════════════════
+       RESET
+    ═══════════════════════════════════════════════ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--f-body);
+            background: var(--bg);
+            color: var(--fg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.55;
+            overflow-x: hidden;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            cursor: pointer;
+            font: inherit;
+            border: none;
+            background: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ═══════════════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════════════ */
+        .nav {
+            position: fixed;
+            inset-block-start: 0;
+            inset-inline: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .75rem 1.75rem;
+            background: var(--bg);
+            /* fallback */
+            background: color-mix(in srgb, var(--bg) 88%, transparent);
+            backdrop-filter: blur(18px) saturate(1.4);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav__logo {
+            height: 28px;
+            width: auto;
+        }
+
+        .nav__right {
+            display: flex;
+            align-items: center;
+            gap: .625rem;
+        }
+
+        .lang-toggle {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        .lang-toggle button {
+            padding: .3rem .7rem;
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .07em;
+            color: var(--fg);
+            opacity: .35;
+            transition: opacity .14s, background .14s, color .14s;
+        }
+
+        .lang-toggle button.active {
+            background: var(--a);
+            color: #0b1a11;
+            opacity: 1;
+        }
+
+        .theme-btn {
+            padding: .28rem .55rem;
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            font-size: .9rem;
+            line-height: 1;
+            opacity: .45;
+            transition: opacity .14s;
+        }
+
+        .theme-btn:hover {
+            opacity: 1;
+        }
+
+        /* ═══════════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════════ */
+        .hero {
+            min-height: 100svh;
+            display: grid;
+            grid-template-rows: 1fr auto auto;
+            padding-top: 56px;
+        }
+
+        /* Scoreboard split */
+        .scoreboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            gap: .625rem;
+            padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1.25rem, 4vw, 2.25rem) clamp(1.5rem, 4vw, 2.25rem);
+        }
+
+        .team--b {
+            align-items: flex-end;
+            text-align: right;
+            border-left: 1px solid var(--border);
+        }
+
+        .team__label {
+            font-family: var(--f-num);
+            font-size: clamp(.9rem, 2.5vw, 1.4rem);
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .team--a .team__label {
+            color: var(--a);
+        }
+
+        .team--b .team__label {
+            color: var(--b);
+        }
+
+        .team__elo {
+            font-family: var(--f-num);
+            font-size: clamp(4.5rem, 14vw, 7.5rem);
+            font-weight: 700;
+            line-height: .88;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -.025em;
+        }
+
+        .team__sep {
+            height: 1px;
+            width: 100%;
+            background: var(--border);
+            margin: .125rem 0 .375rem;
+        }
+
+        /* Player flip cards */
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: .3rem;
+            width: 100%;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            gap: .625rem;
+            padding: .4rem .65rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            opacity: 0;
+            transform: perspective(280px) rotateX(-65deg);
+            transform-origin: top center;
+            transition: opacity .32s var(--ease-out), transform .32s var(--ease-out);
+            will-change: transform, opacity;
+        }
+
+        .player-item.in {
+            opacity: 1;
+            transform: perspective(280px) rotateX(0deg);
+        }
+
+        .team--b .player-item {
+            flex-direction: row-reverse;
+        }
+
+        .player-item__name {
+            font-size: .86rem;
+            font-weight: 600;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .team--b .player-item__name {
+            text-align: right;
+        }
+
+        .player-item__elo {
+            font-family: var(--f-num);
+            font-size: .92rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--fg);
+            opacity: .58;
+            flex-shrink: 0;
+        }
+
+        /* Balance bar */
+        .balance {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: .875rem clamp(1.25rem, 4vw, 2.25rem);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .balance__track {
+            flex: 1;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance__a {
+            position: absolute;
+            inset-block: 0;
+            left: 0;
+            width: 0;
+            background: var(--a);
+            border-radius: 2px;
+            transition: width .85s var(--ease-out);
+        }
+
+        .balance__b {
+            position: absolute;
+            inset-block: 0;
+            right: 0;
+            width: 0;
+            background: var(--b);
+            border-radius: 2px;
+            transition: width .85s var(--ease-out) .07s;
+        }
+
+        .balance__label {
+            font-family: var(--f-num);
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity .5s ease;
+        }
+
+        .balance__label.show {
+            opacity: .82;
+        }
+
+        /* Hero bottom: headline + CTA */
+        .hero__bottom {
+            text-align: center;
+            padding: clamp(2.5rem, 5vw, 4rem) 1.5rem clamp(3rem, 5vw, 4.5rem);
+        }
+
+        .hero__headline {
+            font-family: var(--f-num);
+            font-size: clamp(3rem, 10vw, 5.75rem);
+            font-weight: 700;
+            line-height: .98;
+            letter-spacing: -.015em;
+            text-transform: uppercase;
+            margin-bottom: .875rem;
+        }
+
+        .hero__sub {
+            font-size: clamp(.95rem, 2vw, 1.125rem);
+            font-weight: 400;
+            opacity: .72;
+            max-width: 46ch;
+            margin: 0 auto 2.25rem;
+            line-height: 1.65;
+        }
+
+        /* CTA button */
+        .btn-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: .625rem;
+            background: var(--a);
+            color: #0b1a11;
+            font-family: var(--f-body);
+            font-size: .92rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            padding: .9rem 2rem;
+            border-radius: var(--r);
+            border: none;
+            transition: transform .13s, box-shadow .13s;
+            cursor: pointer;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(35, 209, 96, .26);
+        }
+
+        .btn-cta:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-cta:focus-visible {
+            outline: 2px solid var(--a);
+            outline-offset: 3px;
+        }
+
+        .btn-cta svg {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+        }
+
+        /* ═══════════════════════════════════════════════
+       SECTION COMMONS
+    ═══════════════════════════════════════════════ */
+        .section {
+            padding: clamp(4rem, 8vw, 6.5rem) clamp(1.25rem, 4vw, 2.25rem);
+        }
+
+        .section__wrap {
+            max-width: 880px;
+            margin: 0 auto;
+        }
+
+        .section__wrap--narrow {
+            max-width: 660px;
+            margin: 0 auto;
+        }
+
+        .section__heading {
+            font-family: var(--f-num);
+            font-size: clamp(2.25rem, 6vw, 3.75rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 1.02;
+            letter-spacing: -.01em;
+            margin-bottom: clamp(2rem, 4vw, 3.25rem);
+        }
+
+        /* ═══════════════════════════════════════════════
+       FEATURES
+    ═══════════════════════════════════════════════ */
+        .features {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feature-item {
+            display: grid;
+            grid-template-columns: 3.25rem 1fr;
+            gap: 1.25rem 1.5rem;
+            align-items: start;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-item__n {
+            font-family: var(--f-num);
+            font-size: 2.75rem;
+            font-weight: 700;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            padding-top: .1rem;
+        }
+
+        .feature-item:nth-child(odd) .feature-item__n {
+            color: var(--a);
+        }
+
+        .feature-item:nth-child(even) .feature-item__n {
+            color: var(--b);
+        }
+
+        .feature-item__title {
+            font-size: 1.175rem;
+            font-weight: 700;
+            margin-bottom: .35rem;
+        }
+
+        .feature-item__body {
+            font-size: .92rem;
+            opacity: .68;
+            max-width: 58ch;
+            line-height: 1.68;
+        }
+
+        /* ═══════════════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════════════ */
+        .steps {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 2.5rem 1fr;
+            gap: 1.25rem;
+            padding-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .step:last-child {
+            padding-bottom: 0;
+        }
+
+        /* Connector line */
+        .step::after {
+            content: '';
+            position: absolute;
+            left: 1.2rem;
+            top: 2.5rem;
+            bottom: 0;
+            width: 1px;
+            background: var(--border);
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step__n {
+            font-family: var(--f-num);
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1;
+            opacity: .16;
+            text-align: center;
+        }
+
+        .step__title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: .35rem;
+        }
+
+        .step__body {
+            font-size: .92rem;
+            opacity: .68;
+            max-width: 52ch;
+            line-height: 1.68;
+        }
+
+        /* ═══════════════════════════════════════════════
+       FAQ
+    ═══════════════════════════════════════════════ */
+        .faq-section {
+            border-top: 1px solid var(--border);
+        }
+
+        details.faq {
+            border-bottom: 1px solid var(--border);
+        }
+
+        details.faq summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1.25rem;
+            padding: 1.375rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        details.faq summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.faq summary:focus-visible {
+            outline: 2px solid var(--a);
+            outline-offset: 2px;
+            border-radius: 1px;
+        }
+
+        .faq-icon {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: .4;
+            flex-shrink: 0;
+            line-height: 1;
+            transition: transform .18s var(--ease-out);
+            display: inline-block;
+        }
+
+        details.faq[open] .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-ans {
+            padding: 0 0 1.5rem;
+            font-size: .92rem;
+            opacity: .72;
+            max-width: 56ch;
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════ */
+        .site-footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 3.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.875rem;
+            text-align: center;
+        }
+
+        .site-footer__logo {
+            height: 26px;
+        }
+
+        .site-footer__legal {
+            font-size: .78rem;
+            opacity: .28;
+        }
+
+        /* Sticky CTA strip (mobile only) */
+        .sticky-bar {
+            position: fixed;
+            inset-block-end: 0;
+            inset-inline: 0;
+            z-index: 90;
+            padding: .875rem 1.25rem;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .sticky-bar .btn-cta {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* ═══════════════════════════════════════════════
+       SCROLL REVEAL
+    ═══════════════════════════════════════════════ */
+        .sr {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity .58s var(--ease-out), transform .58s var(--ease-out);
+        }
+
+        .sr.on {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* ═══════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════ */
+        @media (max-width: 620px) {
+            .nav {
+                padding: .625rem 1.125rem;
+            }
+
+            .scoreboard {
+                grid-template-columns: 1fr;
+            }
+
+            .team--b {
+                align-items: flex-start;
+                text-align: left;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+
+            .team--b .player-item {
+                flex-direction: row;
+            }
+
+            .team--b .player-item__name {
+                text-align: left;
+            }
+
+            .hero__bottom .btn-cta {
+                display: none;
+            }
+
+            .sticky-bar {
+                display: block;
+            }
+
+            .section {
+                padding: 3.5rem 1.125rem;
+            }
+        }
+
+        @media (min-width: 621px) {
+            .sticky-bar {
+                display: none !important;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════
+       REDUCED MOTION
+    ═══════════════════════════════════════════════ */
+        @media (prefers-reduced-motion: reduce) {
+            .player-item {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+
+            .balance__a,
+            .balance__b {
+                transition: none;
+            }
+
+            .balance__label {
+                opacity: .6;
+            }
+
+            .btn-cta {
+                transition: none;
+            }
+
+            .faq-icon {
+                transition: none;
+            }
+
+            .sr {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════
+       KEYBOARD FOCUS
+    ═══════════════════════════════════════════════ */
+        :focus-visible {
+            outline: 2px solid var(--a);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!--
+  THESIS: The app's mechanism — balanced teams via ELO — proves itself in the hero before any
+  word of copy lands. The category standard (phone mockup hero, floating badge, green pitch) is refused.
+  OWN-WORLD: Night stadium scoreboard. #10241C ground, #F3EFD9 cream digits, #23d160 / #FF7062 as
+  live team indicators — not decoration, they ARE the teams. Teko Black for all numerals;
+  Manrope for prose.
+  STORY: Visitor arrives mid-search. They watch a real match assemble: player names flip in, ELO
+  medians count up, balance bar locks. They know the product because they just saw it work.
+  FIRST VIEWPORT: Scoreboard split (Team A left, Team B right). Player cards cascade in one by one.
+  ELO medians count up. Balance bar fills from both ends to EQUILIBRADO. Headline + CTA anchor below.
+  FORM: Grounded candidate 3 (stadium scoreboard), cascade staging. Seed key dfec0736.
+-->
+
+    <!-- NAV -->
+    <nav class="nav" aria-label="Navegación principal">
+        <a href="#" aria-label="Equipito — Inicio">
+            <img src="logoDark.jpeg" alt="Equipito" class="nav__logo" id="nav-logo" />
+        </a>
+        <div class="nav__right">
+            <div class="lang-toggle" role="group" aria-label="Seleccionar idioma">
+                <button id="btn-es" class="active" onclick="setLang('es')" aria-pressed="true">ES</button>
+                <button id="btn-en" onclick="setLang('en')" aria-pressed="false">EN</button>
+            </div>
+            <button class="theme-btn" onclick="toggleTheme()" aria-label="Cambiar tema" id="theme-btn"
+                title="Cambiar tema">☀</button>
+        </div>
+    </nav>
+
+    <main>
+
+        <!-- ══ HERO ══ -->
+        <section class="hero" aria-label="Equipito">
+
+            <!-- Scoreboard -->
+            <div class="scoreboard" aria-label="Demo: partido de ejemplo">
+
+                <!-- Team A -->
+                <div class="team team--a">
+                    <div class="team__label" data-es="Equipo A" data-en="Team A">Equipo A</div>
+                    <div class="team__elo" id="elo-a" data-val="1340" aria-label="ELO medio Equipo A: 1340">0</div>
+                    <div class="team__sep" role="separator" aria-hidden="true"></div>
+                    <ul class="player-list" aria-label="Jugadores Equipo A">
+                        <li class="player-item" data-idx="0">
+                            <span class="player-item__name">Carlos</span>
+                            <span class="player-item__elo" aria-label="ELO 1450">1.450</span>
+                        </li>
+                        <li class="player-item" data-idx="1">
+                            <span class="player-item__name">Luis</span>
+                            <span class="player-item__elo" aria-label="ELO 1320">1.320</span>
+                        </li>
+                        <li class="player-item" data-idx="2">
+                            <span class="player-item__name">Ana</span>
+                            <span class="player-item__elo" aria-label="ELO 1290">1.290</span>
+                        </li>
+                        <li class="player-item" data-idx="3">
+                            <span class="player-item__name">Diego</span>
+                            <span class="player-item__elo" aria-label="ELO 1340">1.340</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Team B -->
+                <div class="team team--b">
+                    <div class="team__label" data-es="Equipo B" data-en="Team B">Equipo B</div>
+                    <div class="team__elo" id="elo-b" data-val="1298" aria-label="ELO medio Equipo B: 1298">0</div>
+                    <div class="team__sep" role="separator" aria-hidden="true"></div>
+                    <ul class="player-list" aria-label="Jugadores Equipo B">
+                        <li class="player-item" data-idx="4">
+                            <span class="player-item__name">Mario</span>
+                            <span class="player-item__elo" aria-label="ELO 1380">1.380</span>
+                        </li>
+                        <li class="player-item" data-idx="5">
+                            <span class="player-item__name">Pedro</span>
+                            <span class="player-item__elo" aria-label="ELO 1210">1.210</span>
+                        </li>
+                        <li class="player-item" data-idx="6">
+                            <span class="player-item__name">Juan</span>
+                            <span class="player-item__elo" aria-label="ELO 1200">1.200</span>
+                        </li>
+                        <li class="player-item" data-idx="7">
+                            <span class="player-item__name">Sofía</span>
+                            <span class="player-item__elo" aria-label="ELO 1400">1.400</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Balance bar -->
+            <div class="balance" aria-label="Balance de equipos">
+                <div class="balance__track" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"
+                    aria-label="Equipos equilibrados">
+                    <div class="balance__a" id="fill-a"></div>
+                    <div class="balance__b" id="fill-b"></div>
+                </div>
+                <div class="balance__label" id="bal-label" data-es="Equilibrado" data-en="Balanced" aria-live="polite">
+                    Equilibrado</div>
+            </div>
+
+            <!-- Headline + CTA -->
+            <div class="hero__bottom">
+                <h1 class="hero__headline" data-es="Equipos justos<br>en segundos" data-en="Fair teams<br>in seconds">
+                    Equipos justos<br>en segundos</h1>
+                <p class="hero__sub"
+                    data-es="Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos."
+                    data-en="Equipito uses ELO ratings to build balanced teams automatically. No arguments, no favourites.">
+                    Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos.
+                </p>
+                <a href="#" class="btn-cta" id="cta-main" aria-label="Descargar Equipito en Google Play">
+                    <!-- Play icon -->
+                    <svg viewBox="0 0 20 22" fill="currentColor" aria-hidden="true">
+                        <path
+                            d="M1.5 1.27a1.5 1.5 0 0 0-.5 1.12v17.22c0 .44.19.85.5 1.12l.06.05 9.64-9.64v-.23L1.56 1.22l-.06.05z" />
+                        <path
+                            d="M14.43 14.1l-3.22-3.22v-.22l3.22-3.22.07.04 3.82 2.17c1.09.62 1.09 1.63 0 2.25l-3.82 2.17-.07.04z" />
+                        <path d="M14.5 14.06L11.27 10.8 1.5 20.57c.36.38.94.43 1.43.13l11.57-6.64" />
+                        <path d="M14.5 7.94L2.93 1.3C2.44 1 1.86 1.05 1.5 1.43l9.77 9.77 3.23-3.26z" />
+                    </svg>
+                    <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google
+                        Play</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ══ FEATURES ══ -->
+        <section class="section features sr" aria-labelledby="feat-title">
+            <div class="section__wrap">
+                <h2 class="section__heading" id="feat-title" data-es="Todo lo que necesitás para el partido"
+                    data-en="Everything you need for the match">
+                    Todo lo que necesitás para el partido
+                </h2>
+
+                <div>
+                    <div class="feature-item">
+                        <div class="feature-item__n" aria-hidden="true">01</div>
+                        <div>
+                            <h3 class="feature-item__title" data-es="Auto-asignación" data-en="Auto-assign">
+                                Auto-asignación</h3>
+                            <p class="feature-item__body"
+                                data-es="Tocá el botón de varita. El algoritmo de snake-draft por ELO distribuye a todos los jugadores en dos equipos equilibrados en menos de un segundo."
+                                data-en="Tap the wand button. The ELO snake-draft algorithm splits all players into two balanced teams in under a second.">
+                                Tocá el botón de varita. El algoritmo de snake-draft por ELO distribuye a todos los
+                                jugadores en dos equipos equilibrados en menos de un segundo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-item__n" aria-hidden="true">02</div>
+                        <div>
+                            <h3 class="feature-item__title" data-es="Sistema ELO" data-en="ELO System">Sistema ELO</h3>
+                            <p class="feature-item__body"
+                                data-es="Cada jugador tiene un rating entre 800 y 2,000 que evoluciona con cada resultado. Cuatro rangos: Noob, Average, Pro y Challenger."
+                                data-en="Each player has a rating between 800 and 2,000 that evolves with every result. Four tiers: Noob, Average, Pro, and Challenger.">
+                                Cada jugador tiene un rating entre 800 y 2,000 que evoluciona con cada resultado. Cuatro
+                                rangos: Noob, Average, Pro y Challenger.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-item__n" aria-hidden="true">03</div>
+                        <div>
+                            <h3 class="feature-item__title" data-es="Historial de partidos" data-en="Match History">
+                                Historial de partidos</h3>
+                            <p class="feature-item__body"
+                                data-es="Registrá el marcador final, revisá resultados anteriores y seguí tu curva de ELO partido a partido a lo largo de la temporada."
+                                data-en="Record the final score, review past results, and follow your ELO curve match by match throughout the season.">
+                                Registrá el marcador final, revisá resultados anteriores y seguí tu curva de ELO partido
+                                a partido a lo largo de la temporada.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-item__n" aria-hidden="true">04</div>
+                        <div>
+                            <h3 class="feature-item__title" data-es="Gestión de plantel" data-en="Player Roster">Gestión
+                                de plantel</h3>
+                            <p class="feature-item__body"
+                                data-es="Agregá, editá y buscá jugadores. El capitán le da nombre al equipo y el panel de balance muestra el diferencial de ELO y la probabilidad de victoria de cada lado."
+                                data-en="Add, edit, and search players. The captain names the team, and the balance panel shows the ELO differential and each side's win probability.">
+                                Agregá, editá y buscá jugadores. El capitán le da nombre al equipo y el panel de balance
+                                muestra el diferencial de ELO y la probabilidad de victoria de cada lado.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ HOW IT WORKS ══ -->
+        <section class="section sr" aria-labelledby="how-title">
+            <div class="section__wrap--narrow">
+                <h2 class="section__heading" id="how-title" data-es="Listo en tres pasos"
+                    data-en="Ready in three steps">
+                    Listo en tres pasos
+                </h2>
+                <div class="steps">
+
+                    <div class="step">
+                        <div class="step__n" aria-hidden="true">01</div>
+                        <div>
+                            <h3 class="step__title" data-es="Armá tu plantel" data-en="Build your squad">Armá tu plantel
+                            </h3>
+                            <p class="step__body"
+                                data-es="Agregá cada jugador con su nivel: Noob (800 ELO), Average (1200) o Pro (2000). O ingresá un rating personalizado entre 800 y 2,000."
+                                data-en="Add each player with their level: Noob (800 ELO), Average (1200), or Pro (2000). Or enter a custom rating between 800 and 2,000.">
+                                Agregá cada jugador con su nivel: Noob (800 ELO), Average (1200) o Pro (2000). O ingresá
+                                un rating personalizado entre 800 y 2,000.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step__n" aria-hidden="true">02</div>
+                        <div>
+                            <h3 class="step__title" data-es="Asigná los equipos" data-en="Assign teams">Asigná los
+                                equipos</h3>
+                            <p class="step__body"
+                                data-es="Tocá el botón de varita mágica. Equipito balancea automáticamente con snake-draft por ELO. El panel muestra el diferencial y la probabilidad de victoria de cada equipo."
+                                data-en="Tap the wand button. Equipito auto-balances using an ELO snake-draft. The panel shows the ELO differential and each team's win probability.">
+                                Tocá el botón de varita mágica. Equipito balancea automáticamente con snake-draft por
+                                ELO. El panel muestra el diferencial y la probabilidad de victoria de cada equipo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step__n" aria-hidden="true">03</div>
+                        <div>
+                            <h3 class="step__title" data-es="Registrá el resultado" data-en="Record the result">Registrá
+                                el resultado</h3>
+                            <p class="step__body"
+                                data-es="Terminó el partido: ingresá el marcador, confirmá y los ratings ELO se actualizan automáticamente. Todo queda guardado localmente en tu dispositivo — sin cuenta, sin internet."
+                                data-en="Match over: enter the score, confirm, and ELO ratings update automatically. Everything is saved locally on your device — no account, no internet required.">
+                                Terminó el partido: ingresá el marcador, confirmá y los ratings ELO se actualizan
+                                automáticamente. Todo queda guardado localmente en tu dispositivo — sin cuenta, sin
+                                internet.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ FAQ ══ -->
+        <section class="section faq-section sr" aria-labelledby="faq-title">
+            <div class="section__wrap--narrow">
+                <h2 class="section__heading" id="faq-title" data-es="Preguntas frecuentes" data-en="Common questions">
+                    Preguntas frecuentes
+                </h2>
+                <div>
+                    <details class="faq">
+                        <summary>
+                            <span data-es="¿Es gratis?" data-en="Is it free?">¿Es gratis?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </summary>
+                        <p class="faq-ans" data-es="Sí, Equipito es completamente gratuito y sin publicidades."
+                            data-en="Yes, Equipito is completely free and ad-free.">
+                            Sí, Equipito es completamente gratuito y sin publicidades.
+                        </p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>
+                            <span data-es="¿En qué plataformas está disponible?"
+                                data-en="What platforms is it available on?">¿En qué plataformas está disponible?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </summary>
+                        <p class="faq-ans" data-es="Por ahora solo para Android. Descargalo desde Google Play."
+                            data-en="Android only for now. Download it from Google Play.">
+                            Por ahora solo para Android. Descargalo desde Google Play.
+                        </p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>
+                            <span data-es="¿Qué idiomas soporta?" data-en="What languages does it support?">¿Qué idiomas
+                                soporta?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </summary>
+                        <p class="faq-ans"
+                            data-es="Español e inglés. Podés cambiar el idioma en cualquier momento desde la pestaña Ajustes dentro de la app."
+                            data-en="Spanish and English. You can change the language anytime in the Settings tab inside the app.">
+                            Español e inglés. Podés cambiar el idioma en cualquier momento desde la pestaña Ajustes
+                            dentro de la app.
+                        </p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>
+                            <span data-es="¿Dónde se guardan los datos?" data-en="Where is data stored?">¿Dónde se
+                                guardan los datos?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </summary>
+                        <p class="faq-ans"
+                            data-es="Todo se guarda localmente en tu dispositivo. No necesitás cuenta ni conexión a internet."
+                            data-en="Everything is stored locally on your device. No account or internet connection required.">
+                            Todo se guarda localmente en tu dispositivo. No necesitás cuenta ni conexión a internet.
+                        </p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>
+                            <span data-es="¿Qué es el ELO?" data-en="What is ELO?">¿Qué es el ELO?</span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </summary>
+                        <p class="faq-ans"
+                            data-es="El ELO es un sistema de rating que surgió en el ajedrez. En Equipito, cada jugador tiene un número entre 800 y 2,000 que refleja su nivel: sube cuando ganás, baja cuando perdés."
+                            data-en="ELO is a rating system that originated in chess. In Equipito, each player has a number from 800 to 2,000 reflecting their skill level: goes up when you win, down when you lose.">
+                            El ELO es un sistema de rating que surgió en el ajedrez. En Equipito, cada jugador tiene un
+                            número entre 800 y 2,000 que refleja su nivel: sube cuando ganás, baja cuando perdés.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <img src="logoDark.jpeg" alt="Equipito" class="site-footer__logo" id="footer-logo" />
+        <a href="#" class="btn-cta" id="cta-footer" aria-label="Descargar Equipito en Google Play">
+            <svg viewBox="0 0 20 22" fill="currentColor" aria-hidden="true">
+                <path
+                    d="M1.5 1.27a1.5 1.5 0 0 0-.5 1.12v17.22c0 .44.19.85.5 1.12l.06.05 9.64-9.64v-.23L1.56 1.22l-.06.05z" />
+                <path
+                    d="M14.43 14.1l-3.22-3.22v-.22l3.22-3.22.07.04 3.82 2.17c1.09.62 1.09 1.63 0 2.25l-3.82 2.17-.07.04z" />
+                <path d="M14.5 14.06L11.27 10.8 1.5 20.57c.36.38.94.43 1.43.13l11.57-6.64" />
+                <path d="M14.5 7.94L2.93 1.3C2.44 1 1.86 1.05 1.5 1.43l9.77 9.77 3.23-3.26z" />
+            </svg>
+            <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google Play</span>
+        </a>
+        <p class="site-footer__legal" data-es="© 2025 Equipito. Todos los derechos reservados."
+            data-en="© 2025 Equipito. All rights reserved.">
+            © 2025 Equipito. Todos los derechos reservados.
+        </p>
+    </footer>
+
+    <!-- Sticky CTA bar (mobile) -->
+    <div class="sticky-bar" id="sticky-bar">
+        <a href="#" class="btn-cta" aria-label="Descargar Equipito en Google Play">
+            <svg viewBox="0 0 20 22" fill="currentColor" aria-hidden="true">
+                <path
+                    d="M1.5 1.27a1.5 1.5 0 0 0-.5 1.12v17.22c0 .44.19.85.5 1.12l.06.05 9.64-9.64v-.23L1.56 1.22l-.06.05z" />
+                <path
+                    d="M14.43 14.1l-3.22-3.22v-.22l3.22-3.22.07.04 3.82 2.17c1.09.62 1.09 1.63 0 2.25l-3.82 2.17-.07.04z" />
+                <path d="M14.5 14.06L11.27 10.8 1.5 20.57c.36.38.94.43 1.43.13l11.57-6.64" />
+                <path d="M14.5 7.94L2.93 1.3C2.44 1 1.86 1.05 1.5 1.43l9.77 9.77 3.23-3.26z" />
+            </svg>
+            <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google Play</span>
+        </a>
+    </div>
+
+    <script>
+        /* ───────────────────────────────────────────
+           LANGUAGE
+        ─────────────────────────────────────────── */
+        let currentLang = (navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en';
+
+        function applyLang(l) {
+            document.documentElement.lang = l;
+
+            const btnEs = document.getElementById('btn-es');
+            const btnEn = document.getElementById('btn-en');
+            btnEs.classList.toggle('active', l === 'es');
+            btnEn.classList.toggle('active', l === 'en');
+            btnEs.setAttribute('aria-pressed', String(l === 'es'));
+            btnEn.setAttribute('aria-pressed', String(l === 'en'));
+
+            document.querySelectorAll('[data-es]').forEach(function (el) {
+                var text = el.getAttribute('data-' + l);
+                if (text === null) return;
+                // Allow <br> in headings only
+                if (el.tagName === 'H1' || el.tagName === 'H2') {
+                    el.innerHTML = text;
+                } else {
+                    el.textContent = text;
+                }
+            });
+
+            document.title = l === 'es'
+                ? 'Equipito \u2014 Equipos equilibrados para tu partido'
+                : 'Equipito \u2014 Balanced teams for your match';
+
+            var metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) {
+                metaDesc.content = l === 'es'
+                    ? 'Equipito: la app para organizar partidos de f\u00fatbol con equipos equilibrados autom\u00e1ticamente por ELO. Disponible para Android.'
+                    : 'Equipito: the app for organizing football matches with automatically balanced teams using ELO. Available for Android.';
+            }
+        }
+
+        function setLang(l) {
+            currentLang = l;
+            applyLang(l);
+        }
+
+        applyLang(currentLang);
+
+        /* ───────────────────────────────────────────
+           THEME
+        ─────────────────────────────────────────── */
+        var isDark = true;
+
+        function toggleTheme() {
+            isDark = !isDark;
+            document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+            document.getElementById('theme-btn').textContent = isDark ? '\u2600' : '\u263E';
+            var logoSrc = isDark ? 'logoDark.jpeg' : 'logoLight.jpeg';
+            document.getElementById('nav-logo').src = logoSrc;
+            document.getElementById('footer-logo').src = logoSrc;
+        }
+
+        /* ───────────────────────────────────────────
+           HERO CASCADE
+        ─────────────────────────────────────────── */
+        function countUp(el, target, duration) {
+            var start = performance.now();
+            function tick(now) {
+                var t = Math.min((now - start) / duration, 1);
+                var ease = 1 - Math.pow(1 - t, 3); // cubic ease-out
+                var val = Math.round(ease * target);
+                el.textContent = val.toLocaleString('es-AR');
+                if (t < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function runCascade() {
+            var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            var cards = document.querySelectorAll('.player-item');
+            var eloA = document.getElementById('elo-a');
+            var eloB = document.getElementById('elo-b');
+            var fillA = document.getElementById('fill-a');
+            var fillB = document.getElementById('fill-b');
+            var label = document.getElementById('bal-label');
+
+            if (prefersReduced) {
+                cards.forEach(function (c) { c.classList.add('in'); });
+                eloA.textContent = (1340).toLocaleString('es-AR');
+                eloB.textContent = (1298).toLocaleString('es-AR');
+                fillA.style.width = '50%';
+                fillB.style.width = '50%';
+                label.classList.add('show');
+                return;
+            }
+
+            var BASE = 480;  // ms before first card
+            var STAGGER = 190; // ms between each card
+
+            cards.forEach(function (card, i) {
+                setTimeout(function () {
+                    card.classList.add('in');
+                }, BASE + i * STAGGER);
+            });
+
+            var afterAll = BASE + cards.length * STAGGER + 80;
+
+            setTimeout(function () {
+                countUp(eloA, 1340, 680);
+                countUp(eloB, 1298, 680);
+                fillA.style.width = '50%';
+                fillB.style.width = '50%';
+                setTimeout(function () {
+                    label.classList.add('show');
+                }, 920);
+            }, afterAll);
+        }
+
+        (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
+            setTimeout(runCascade, 160);
+        });
+
+        /* ───────────────────────────────────────────
+           SCROLL REVEAL
+        ─────────────────────────────────────────── */
+        var srEls = document.querySelectorAll('.sr');
+
+        if ('IntersectionObserver' in window) {
+            var obs = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('on');
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.07 });
+            srEls.forEach(function (el) { obs.observe(el); });
+        } else {
+            srEls.forEach(function (el) { el.classList.add('on'); });
+        }
+    </script>
+</body>
+
+</html>
