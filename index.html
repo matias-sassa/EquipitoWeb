@@ -97,12 +97,30 @@
             align-items: center;
             justify-content: space-between;
             padding: .75rem 1.75rem;
+            background: transparent;
+            border-bottom: 1px solid transparent;
+            transition: border-color .3s var(--ease-out);
+        }
+
+        .nav::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
             background: var(--bg);
-            /* fallback */
             background: color-mix(in srgb, var(--bg) 88%, transparent);
             backdrop-filter: blur(18px) saturate(1.4);
             -webkit-backdrop-filter: blur(18px) saturate(1.4);
-            border-bottom: 1px solid var(--border);
+            opacity: 0;
+            transition: opacity .35s var(--ease-out);
+        }
+
+        .nav--scrolled::before {
+            opacity: 1;
+        }
+
+        .nav--scrolled {
+            border-color: var(--border);
         }
 
         .nav__logo {
@@ -159,7 +177,7 @@
         .hero {
             min-height: 100svh;
             display: grid;
-            grid-template-rows: 1fr auto auto;
+            grid-template-rows: auto 1fr auto;
             padding-top: 56px;
         }
 
@@ -331,6 +349,22 @@
             padding: clamp(2.5rem, 5vw, 4rem) 1.5rem clamp(3rem, 5vw, 4.5rem);
         }
 
+        .hero__title-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(.875rem, 3vw, 1.75rem);
+            margin-bottom: .875rem;
+        }
+
+        .hero__logo {
+            height: clamp(72px, 13vw, 120px);
+            width: auto;
+            border-radius: 20px;
+            flex-shrink: 0;
+            object-fit: contain;
+        }
+
         .hero__headline {
             font-family: var(--f-num);
             font-size: clamp(3rem, 10vw, 5.75rem);
@@ -338,7 +372,8 @@
             line-height: .98;
             letter-spacing: -.015em;
             text-transform: uppercase;
-            margin-bottom: .875rem;
+            margin-bottom: 0;
+            text-align: left;
         }
 
         .hero__sub {
@@ -645,6 +680,16 @@
                 padding: .625rem 1.125rem;
             }
 
+            .hero__title-group {
+                flex-direction: column;
+                align-items: center;
+                gap: .75rem;
+            }
+
+            .hero__headline {
+                text-align: center;
+            }
+
             .scoreboard {
                 grid-template-columns: 1fr;
             }
@@ -750,7 +795,7 @@
     <!-- NAV -->
     <nav class="nav" aria-label="Navegación principal">
         <a href="#" aria-label="Equipito — Inicio">
-            <img src="logoDark.jpeg" alt="Equipito" class="nav__logo" id="nav-logo" />
+            <img src="img/logoDark.jpeg" alt="Equipito" class="nav__logo" id="nav-logo" />
         </a>
         <div class="nav__right">
             <div class="lang-toggle" role="group" aria-label="Seleccionar idioma">
@@ -766,6 +811,33 @@
 
         <!-- ══ HERO ══ -->
         <section class="hero" aria-label="Equipito">
+
+            <!-- Headline + CTA -->
+            <div class="hero__bottom">
+                <div class="hero__title-group">
+                    <img src="img/logoDark.jpeg" alt="Equipito" class="hero__logo" id="hero-logo" />
+                    <h1 class="hero__headline" data-es="Equipos justos<br>en segundos" data-en="Fair teams<br>in seconds">
+                        Equipos justos<br>en segundos</h1>
+                </div>
+                <p class="hero__sub"
+                    data-es="Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos."
+                    data-en="Equipito uses ELO ratings to build balanced teams automatically. No arguments, no favourites.">
+                    Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos.
+                </p>
+                <a href="#" class="btn-cta" id="cta-main" aria-label="Descargar Equipito en Google Play">
+                    <!-- Play icon -->
+                    <svg viewBox="0 0 20 22" fill="currentColor" aria-hidden="true">
+                        <path
+                            d="M1.5 1.27a1.5 1.5 0 0 0-.5 1.12v17.22c0 .44.19.85.5 1.12l.06.05 9.64-9.64v-.23L1.56 1.22l-.06.05z" />
+                        <path
+                            d="M14.43 14.1l-3.22-3.22v-.22l3.22-3.22.07.04 3.82 2.17c1.09.62 1.09 1.63 0 2.25l-3.82 2.17-.07.04z" />
+                        <path d="M14.5 14.06L11.27 10.8 1.5 20.57c.36.38.94.43 1.43.13l11.57-6.64" />
+                        <path d="M14.5 7.94L2.93 1.3C2.44 1 1.86 1.05 1.5 1.43l9.77 9.77 3.23-3.26z" />
+                    </svg>
+                    <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google
+                        Play</span>
+                </a>
+            </div>
 
             <!-- Scoreboard -->
             <div class="scoreboard" aria-label="Demo: partido de ejemplo">
@@ -832,29 +904,6 @@
                     Equilibrado</div>
             </div>
 
-            <!-- Headline + CTA -->
-            <div class="hero__bottom">
-                <h1 class="hero__headline" data-es="Equipos justos<br>en segundos" data-en="Fair teams<br>in seconds">
-                    Equipos justos<br>en segundos</h1>
-                <p class="hero__sub"
-                    data-es="Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos."
-                    data-en="Equipito uses ELO ratings to build balanced teams automatically. No arguments, no favourites.">
-                    Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos.
-                </p>
-                <a href="#" class="btn-cta" id="cta-main" aria-label="Descargar Equipito en Google Play">
-                    <!-- Play icon -->
-                    <svg viewBox="0 0 20 22" fill="currentColor" aria-hidden="true">
-                        <path
-                            d="M1.5 1.27a1.5 1.5 0 0 0-.5 1.12v17.22c0 .44.19.85.5 1.12l.06.05 9.64-9.64v-.23L1.56 1.22l-.06.05z" />
-                        <path
-                            d="M14.43 14.1l-3.22-3.22v-.22l3.22-3.22.07.04 3.82 2.17c1.09.62 1.09 1.63 0 2.25l-3.82 2.17-.07.04z" />
-                        <path d="M14.5 14.06L11.27 10.8 1.5 20.57c.36.38.94.43 1.43.13l11.57-6.64" />
-                        <path d="M14.5 7.94L2.93 1.3C2.44 1 1.86 1.05 1.5 1.43l9.77 9.77 3.23-3.26z" />
-                    </svg>
-                    <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google
-                        Play</span>
-                </a>
-            </div>
         </section>
 
         <!-- ══ FEATURES ══ -->
@@ -1057,7 +1106,7 @@
 
     <!-- FOOTER -->
     <footer class="site-footer">
-        <img src="logoDark.jpeg" alt="Equipito" class="site-footer__logo" id="footer-logo" />
+        <img src="img/logoDark.jpeg" alt="Equipito" class="site-footer__logo" id="footer-logo" />
         <a href="#" class="btn-cta" id="cta-footer" aria-label="Descargar Equipito en Google Play">
             <svg viewBox="0 0 20 22" fill="currentColor" aria-hidden="true">
                 <path
@@ -1145,9 +1194,11 @@
             isDark = !isDark;
             document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
             document.getElementById('theme-btn').textContent = isDark ? '\u2600' : '\u263E';
-            var logoSrc = isDark ? 'logoDark.jpeg' : 'logoLight.jpeg';
+            var logoSrc = isDark ? 'img/logoDark.jpeg' : 'img/logoLight.jpeg';
+            var heroLogoSrc = isDark ? 'img/logoDark.jpeg' : 'img/logoLight.jpeg';
             document.getElementById('nav-logo').src = logoSrc;
             document.getElementById('footer-logo').src = logoSrc;
+            document.getElementById('hero-logo').src = heroLogoSrc;
         }
 
         /* ───────────────────────────────────────────
@@ -1210,6 +1261,18 @@
         (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
             setTimeout(runCascade, 160);
         });
+
+        /* ───────────────────────────────────────────
+           NAV SCROLL REVEAL
+        ─────────────────────────────────────────── */
+        (function () {
+            var nav = document.querySelector('.nav');
+            function updateNav() {
+                nav.classList.toggle('nav--scrolled', window.scrollY > 24);
+            }
+            window.addEventListener('scroll', updateNav, { passive: true });
+            updateNav();
+        })();
 
         /* ───────────────────────────────────────────
            SCROLL REVEAL
