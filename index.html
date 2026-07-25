@@ -376,6 +376,10 @@
             text-align: left;
         }
 
+        .hero__headline em {
+            font-style: italic;
+        }
+
         .hero__sub {
             font-size: clamp(.95rem, 2vw, 1.125rem);
             font-weight: 400;
@@ -816,8 +820,10 @@
             <div class="hero__bottom">
                 <div class="hero__title-group">
                     <img src="img/logoDark.jpeg" alt="Equipito" class="hero__logo" id="hero-logo" />
-                    <h1 class="hero__headline" data-es="Equipos justos<br>en segundos" data-en="Fair teams<br>in seconds">
-                        Equipos justos<br>en segundos</h1>
+                    <h1 class="hero__headline" data-es="<em>Equipos</em> justos<br>en segundos"
+                        data-en="<em>Fair</em> teams<br>in seconds">
+                        <em>Equipos</em> justos<br>en segundos
+                    </h1>
                 </div>
                 <p class="hero__sub"
                     data-es="Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos."
@@ -1143,7 +1149,7 @@
         /* ───────────────────────────────────────────
            LANGUAGE
         ─────────────────────────────────────────── */
-        let currentLang = (navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en';
+        let currentLang = 'es';
 
         function applyLang(l) {
             document.documentElement.lang = l;
@@ -1259,7 +1265,18 @@
         }
 
         (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
-            setTimeout(runCascade, 160);
+            var scoreboard = document.querySelector('.scoreboard');
+            if (!scoreboard || !('IntersectionObserver' in window)) {
+                setTimeout(runCascade, 160);
+                return;
+            }
+            var cascadeObs = new IntersectionObserver(function (entries) {
+                if (entries[0].isIntersecting) {
+                    cascadeObs.disconnect();
+                    setTimeout(runCascade, 160);
+                }
+            }, { threshold: 0.15 });
+            cascadeObs.observe(scoreboard);
         });
 
         /* ───────────────────────────────────────────
@@ -1287,7 +1304,7 @@
                         obs.unobserve(e.target);
                     }
                 });
-            }, { threshold: 0.07 });
+            }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
             srEls.forEach(function (el) { obs.observe(el); });
         } else {
             srEls.forEach(function (el) { el.classList.add('on'); });
