@@ -435,28 +435,39 @@
         .btn-cta {
             display: inline-flex;
             align-items: center;
-            gap: .625rem;
-            background: var(--a);
-            color: #0b1a11;
+            gap: .875rem;
+            background: #2d2d2d;
+            color: #fff;
             font-family: var(--f-body);
-            font-size: .92rem;
-            font-weight: 800;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            padding: .6rem 1.25rem;
-            border-radius: var(--r);
-            border: none;
-            transition: transform .13s, box-shadow .13s;
+            padding: .55rem 1.25rem .55rem 1rem;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: transform .13s, box-shadow .13s, opacity .13s;
             cursor: pointer;
+            text-decoration: none;
+        }
+
+        [data-theme="light"] .btn-cta {
+            background: #fff;
+            color: #1a1a1a;
+            border-color: rgba(0, 0, 0, .18);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
         }
 
         .btn-cta:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(35, 209, 96, .26);
+            opacity: .88;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+        }
+
+        [data-theme="light"] .btn-cta:hover {
+            opacity: 1;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .13);
         }
 
         .btn-cta:active {
             transform: translateY(0);
+            opacity: 1;
             box-shadow: none;
         }
 
@@ -466,9 +477,32 @@
         }
 
         .btn-cta svg {
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
             flex-shrink: 0;
+        }
+
+        .btn-cta__text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.1;
+        }
+
+        .btn-cta__eyebrow {
+            font-size: .58rem;
+            font-weight: 400;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            opacity: .75;
+        }
+
+        .btn-cta__store {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -.01em;
+            text-transform: none;
+            line-height: 1.25;
         }
 
         /* ═══════════════════════════════════════════════
@@ -830,13 +864,18 @@
                     Equipito usa ELO para armar equipos equilibrados automáticamente. Sin discusiones, sin favoritismos.
                 </p>
                 <a href="#" class="btn-cta" id="cta-main" aria-label="Descargar Equipito en Google Play">
-                    <!-- Play icon -->
-                    <svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
-                        <path
-                            d="M389.6 298.3L168.9 77L449.7 238.2L389.6 298.3zM111.3 64C98.3 70.8 89.6 83.2 89.6 99.3L89.6 540.6C89.6 556.7 98.3 569.1 111.3 575.9L367.9 319.9L111.3 64zM536.5 289.6L477.6 255.5L411.9 320L477.6 384.5L537.7 350.4C555.7 336.1 555.7 303.9 536.5 289.6zM168.9 563L449.7 401.8L389.6 341.7L168.9 563z" />
+                    <svg viewBox="0 0 640 640" aria-hidden="true">
+                        <path fill="#4285F4" d="M389.6 298.3L168.9 77L449.7 238.2L389.6 298.3z" />
+                        <path fill="#34A853"
+                            d="M111.3 64C98.3 70.8 89.6 83.2 89.6 99.3L89.6 540.6C89.6 556.7 98.3 569.1 111.3 575.9L367.9 319.9L111.3 64z" />
+                        <path fill="#FBBC05"
+                            d="M536.5 289.6L477.6 255.5L411.9 320L477.6 384.5L537.7 350.4C555.7 336.1 555.7 303.9 536.5 289.6z" />
+                        <path fill="#EA4335" d="M168.9 563L449.7 401.8L389.6 341.7L168.9 563z" />
                     </svg>
-                    <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google
-                        Play</span>
+                    <span class="btn-cta__text">
+                        <span class="btn-cta__eyebrow" data-es="Conseguilo en" data-en="Get it on">Conseguilo en</span>
+                        <span class="btn-cta__store">Google Play</span>
+                    </span>
                 </a>
             </div>
 
@@ -1111,11 +1150,18 @@
     <footer class="site-footer">
         <img src="img/logoDark.jpeg" alt="Equipito" class="site-footer__logo" id="footer-logo" />
         <a href="#" class="btn-cta" id="cta-footer" aria-label="Descargar Equipito en Google Play">
-            <svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
-                <path
-                    d="M389.6 298.3L168.9 77L449.7 238.2L389.6 298.3zM111.3 64C98.3 70.8 89.6 83.2 89.6 99.3L89.6 540.6C89.6 556.7 98.3 569.1 111.3 575.9L367.9 319.9L111.3 64zM536.5 289.6L477.6 255.5L411.9 320L477.6 384.5L537.7 350.4C555.7 336.1 555.7 303.9 536.5 289.6zM168.9 563L449.7 401.8L389.6 341.7L168.9 563z" />
+            <svg viewBox="0 0 640 640" aria-hidden="true">
+                <path fill="#4285F4" d="M389.6 298.3L168.9 77L449.7 238.2L389.6 298.3z" />
+                <path fill="#34A853"
+                    d="M111.3 64C98.3 70.8 89.6 83.2 89.6 99.3L89.6 540.6C89.6 556.7 98.3 569.1 111.3 575.9L367.9 319.9L111.3 64z" />
+                <path fill="#FBBC05"
+                    d="M536.5 289.6L477.6 255.5L411.9 320L477.6 384.5L537.7 350.4C555.7 336.1 555.7 303.9 536.5 289.6z" />
+                <path fill="#EA4335" d="M168.9 563L449.7 401.8L389.6 341.7L168.9 563z" />
             </svg>
-            <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google Play</span>
+            <span class="btn-cta__text">
+                <span class="btn-cta__eyebrow" data-es="Conseguilo en" data-en="Get it on">Conseguilo en</span>
+                <span class="btn-cta__store">Google Play</span>
+            </span>
         </a>
         <p class="site-footer__legal" data-es="© 2026 Equipito. Todos los derechos reservados."
             data-en="© 2026 Equipito. All rights reserved.">
@@ -1126,11 +1172,18 @@
     <!-- Sticky CTA bar (mobile) -->
     <div class="sticky-bar" id="sticky-bar">
         <a href="#" class="btn-cta" aria-label="Descargar Equipito en Google Play">
-            <svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
-                <path
-                    d="M389.6 298.3L168.9 77L449.7 238.2L389.6 298.3zM111.3 64C98.3 70.8 89.6 83.2 89.6 99.3L89.6 540.6C89.6 556.7 98.3 569.1 111.3 575.9L367.9 319.9L111.3 64zM536.5 289.6L477.6 255.5L411.9 320L477.6 384.5L537.7 350.4C555.7 336.1 555.7 303.9 536.5 289.6zM168.9 563L449.7 401.8L389.6 341.7L168.9 563z" />
+            <svg viewBox="0 0 640 640" aria-hidden="true">
+                <path fill="#4285F4" d="M389.6 298.3L168.9 77L449.7 238.2L389.6 298.3z" />
+                <path fill="#34A853"
+                    d="M111.3 64C98.3 70.8 89.6 83.2 89.6 99.3L89.6 540.6C89.6 556.7 98.3 569.1 111.3 575.9L367.9 319.9L111.3 64z" />
+                <path fill="#FBBC05"
+                    d="M536.5 289.6L477.6 255.5L411.9 320L477.6 384.5L537.7 350.4C555.7 336.1 555.7 303.9 536.5 289.6z" />
+                <path fill="#EA4335" d="M168.9 563L449.7 401.8L389.6 341.7L168.9 563z" />
             </svg>
-            <span data-es="Descargar en Google Play" data-en="Download on Google Play">Descargar en Google Play</span>
+            <span class="btn-cta__text">
+                <span class="btn-cta__eyebrow" data-es="Conseguilo en" data-en="Get it on">Conseguilo en</span>
+                <span class="btn-cta__store">Google Play</span>
+            </span>
         </a>
     </div>
 
