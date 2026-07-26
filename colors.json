@@ -1,0 +1,14 @@
+{
+    "light": {
+        "fondo": "#F3EFD9",
+        "texto": "#10241C",
+        "equipoA": "#23d160",
+        "equipoB": "#FF7062"
+    },
+    "dark": {
+        "fondo": "#10241C",
+        "texto": "#F3EFD9",
+        "equipoA": "#23d160",
+        "equipoB": "#FF7062"
+    }
+}
