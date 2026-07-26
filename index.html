@@ -128,6 +128,14 @@
             width: auto;
         }
 
+        .nav__title {
+            font-style: italic;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: inherit;
+        }
+
         .nav__right {
             display: flex;
             align-items: center;
@@ -196,7 +204,6 @@
 
         .team--b {
             align-items: flex-end;
-            text-align: right;
             border-left: 1px solid var(--border);
         }
 
@@ -260,10 +267,6 @@
             transform: perspective(280px) rotateX(0deg);
         }
 
-        .team--b .player-item {
-            flex-direction: row-reverse;
-        }
-
         .player-item__name {
             font-size: .86rem;
             font-weight: 600;
@@ -272,10 +275,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-
-        .team--b .player-item__name {
-            text-align: right;
         }
 
         .player-item__elo {
@@ -705,13 +704,7 @@
                 border-top: 1px solid var(--border);
             }
 
-            .team--b .player-item {
-                flex-direction: row;
-            }
 
-            .team--b .player-item__name {
-                text-align: left;
-            }
 
             .hero__bottom .btn-cta {
                 display: none;
@@ -798,8 +791,10 @@
 
     <!-- NAV -->
     <nav class="nav" aria-label="Navegación principal">
-        <a href="#" aria-label="Equipito — Inicio">
+        <a href="#" aria-label="Equipito — Inicio"
+            style="display:flex;align-items:center;gap:.5rem;text-decoration:none;">
             <img src="img/logoDark.jpeg" alt="Equipito" class="nav__logo" id="nav-logo" />
+            <em class="nav__title">equipito</em>
         </a>
         <div class="nav__right">
             <div class="lang-toggle" role="group" aria-label="Seleccionar idioma">
@@ -1232,12 +1227,17 @@
             var fillB = document.getElementById('fill-b');
             var label = document.getElementById('bal-label');
 
+            var ELO_A = 1340, ELO_B = 1298;
+            var balancePct = Math.min(ELO_A, ELO_B) / Math.max(ELO_A, ELO_B); // ~0.969
+            var greenW = (balancePct * 100).toFixed(1) + '%';
+            var redW = ((1 - balancePct) * 100).toFixed(1) + '%';
+
             if (prefersReduced) {
                 cards.forEach(function (c) { c.classList.add('in'); });
-                eloA.textContent = (1340).toLocaleString('es-AR');
-                eloB.textContent = (1298).toLocaleString('es-AR');
-                fillA.style.width = '50%';
-                fillB.style.width = '50%';
+                eloA.textContent = ELO_A.toLocaleString('es-AR');
+                eloB.textContent = ELO_B.toLocaleString('es-AR');
+                fillA.style.width = greenW;
+                fillB.style.width = redW;
                 label.classList.add('show');
                 return;
             }
@@ -1254,10 +1254,10 @@
             var afterAll = BASE + cards.length * STAGGER + 80;
 
             setTimeout(function () {
-                countUp(eloA, 1340, 680);
-                countUp(eloB, 1298, 680);
-                fillA.style.width = '50%';
-                fillB.style.width = '50%';
+                countUp(eloA, ELO_A, 680);
+                countUp(eloB, ELO_B, 680);
+                fillA.style.width = greenW;
+                fillB.style.width = redW;
                 setTimeout(function () {
                     label.classList.add('show');
                 }, 920);
