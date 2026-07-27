@@ -402,7 +402,7 @@
         .hero__logo {
             height: clamp(72px, 13vw, 120px);
             width: auto;
-            border-radius: 20px;
+            border-radius: 0;
             flex-shrink: 0;
             object-fit: contain;
         }
@@ -667,8 +667,9 @@
             border-top: 1px solid var(--border);
             padding: 3.5rem 2rem;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             align-items: center;
+            justify-content: center;
             gap: 1.875rem;
             text-align: center;
         }
@@ -680,6 +681,7 @@
         .site-footer__legal {
             font-size: .78rem;
             opacity: .28;
+            width: 100%;
         }
 
         /* Sticky CTA strip (mobile only) */
@@ -838,8 +840,7 @@
     <nav class="nav" aria-label="Navegación principal">
         <a href="#" aria-label="Equipito — Inicio"
             style="display:flex;align-items:center;gap:.5rem;text-decoration:none;">
-            <img src="img/logoDark.jpeg" alt="Equipito" class="nav__logo" id="nav-logo" />
-            <em class="nav__title">equipito</em>
+            <img src="img/logoTextDark.svg" alt="Equipito" class="nav__logo" id="nav-logo" />
         </a>
         <div class="nav__right">
             <div class="lang-toggle" role="group" aria-label="Seleccionar idioma">
@@ -859,7 +860,7 @@
             <!-- Headline + CTA -->
             <div class="hero__bottom">
                 <div class="hero__title-group">
-                    <img src="img/logoDark.jpeg" alt="Equipito" class="hero__logo" id="hero-logo" />
+                    <img src="img/logoDark.svg" alt="Equipito" class="hero__logo" id="hero-logo" />
                     <h1 class="hero__headline" data-es="<em>Equipos</em> justos<br>en segundos"
                         data-en="<em>Fair</em> teams<br>in seconds">
                         <em>Equipos</em> justos<br>en segundos
@@ -1155,7 +1156,7 @@
 
     <!-- FOOTER -->
     <footer class="site-footer">
-        <img src="img/logoDark.jpeg" alt="Equipito" class="site-footer__logo" id="footer-logo" />
+        <img src="img/logoDark.svg" alt="Equipito" class="site-footer__logo" id="footer-logo" />
         <a href="#" class="btn-cta" id="cta-footer" aria-label="Descargar Equipito en Google Play">
             <svg viewBox="0 0 640 640" aria-hidden="true">
                 <path fill="#4285F4" d="M389.6 298.3L168.9 77L449.7 238.2L389.6 298.3z" />
@@ -1249,11 +1250,11 @@
             isDark = !isDark;
             document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
             document.getElementById('theme-btn').textContent = isDark ? '\u2600' : '\u263E';
-            var logoSrc = isDark ? 'img/logoDark.jpeg' : 'img/logoLight.jpeg';
-            var heroLogoSrc = isDark ? 'img/logoDark.jpeg' : 'img/logoLight.jpeg';
-            document.getElementById('nav-logo').src = logoSrc;
+            var navLogoSrc = isDark ? 'img/logoTextDark.svg' : 'img/logoTextLight.svg';
+            var logoSrc = isDark ? 'img/logoDark.svg' : 'img/logoLight.svg';
+            document.getElementById('nav-logo').src = navLogoSrc;
             document.getElementById('footer-logo').src = logoSrc;
-            document.getElementById('hero-logo').src = heroLogoSrc;
+            document.getElementById('hero-logo').src = logoSrc;
         }
 
         /* ───────────────────────────────────────────
