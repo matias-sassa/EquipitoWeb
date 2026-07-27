@@ -8,8 +8,8 @@
     var style = document.createElement('style');
     style.textContent = [
         '.cs-toast{',
-        '  position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 1.5rem);left:50%;',
-        '  transform:translateX(-50%) translateY(1rem);',
+        '  position:fixed;top:50%;left:50%;',
+        '  transform:translate(-50%,-50%);',
         '  background:var(--surface);border:1px solid var(--border);',
         '  color:var(--fg);font-family:var(--f-body);font-size:.9rem;font-weight:600;',
         '  padding:.75rem 1.25rem;border-radius:var(--r);',
@@ -23,7 +23,7 @@
         '  background:var(--a);border-radius:50%;margin-right:.55rem;',
         '  vertical-align:middle;',
         '}',
-        '.cs-toast.cs-toast--show{opacity:1;transform:translateX(-50%) translateY(0);}',
+        '.cs-toast.cs-toast--show{opacity:1;transform:translate(-50%,-50%);}',
     ].join('');
     document.head.appendChild(style);
 

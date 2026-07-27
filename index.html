@@ -692,6 +692,13 @@
             background: var(--bg);
             border-top: 1px solid var(--border);
             display: none;
+            opacity: 1;
+            transition: opacity .35s var(--ease-out);
+        }
+
+        .sticky-bar--hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .sticky-bar .btn-cta {
@@ -1392,6 +1399,28 @@
             }
             window.addEventListener('scroll', updateNav, { passive: true });
             updateNav();
+        })();
+
+        /* ───────────────────────────────────────────
+           STICKY BAR — hide when footer CTA is visible
+        ─────────────────────────────────────────── */
+        (function () {
+            var stickyBar = document.getElementById('sticky-bar');
+            var footerCta = document.getElementById('cta-footer');
+            if (!stickyBar || !footerCta || !('IntersectionObserver' in window)) return;
+            var hideTimer;
+            var ctaObs = new IntersectionObserver(function (entries) {
+                if (entries[0].isIntersecting) {
+                    stickyBar.classList.add('sticky-bar--hidden');
+                    hideTimer = setTimeout(function () { stickyBar.style.display = 'none'; }, 360);
+                } else {
+                    clearTimeout(hideTimer);
+                    stickyBar.style.display = '';
+                    stickyBar.getBoundingClientRect(); /* force reflow */
+                    stickyBar.classList.remove('sticky-bar--hidden');
+                }
+            }, { threshold: 0.1 });
+            ctaObs.observe(footerCta);
         })();
 
         /* ───────────────────────────────────────────
